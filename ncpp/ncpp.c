@@ -340,8 +340,11 @@ main(argc, argv)
         }
 
         sync();
+
         if (list->count) {
-            out("%T", list->first);
+            if (list->first->class != TOKEN_SPACE)
+                out("%T ", list->first);
+
             list_delete(list, list->first);
         }
     }
