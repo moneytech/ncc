@@ -1,0 +1,14 @@
+There is only one compiler bug that I'm aware of and haven't fixed: a function
+pointer must be dereferenced implicitly. That is,
+
+int (*f)();
+
+f();    /* works as expected */
+(*f)(); /* error */
+
+The logic in generate_call() (ncc1/gen.c) botches the job.
+Easy enough to fix, just have to get around to it.
+
+Charles Youse <charles@gnuless.org>
+December 26, 2018
+

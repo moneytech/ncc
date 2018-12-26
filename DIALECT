@@ -1,0 +1,96 @@
+The compiler accepts "classic" C as described in K&R (1978), with
+a few changes as detailed below.
+
+
+==========
+EXTENSIONS
+==========
+
+* Separate member namespaces.
+
+'struct' and 'union' types each enclose a unique namespace, so members of
+different aggregate types need not have different names.
+
+
+* Separate tag namespaces.
+
+'struct foo' and 'union foo' refer to different types, even in the same scope.
+There's really no reason to have these namespaces overlap, and I suspect it was
+merely an artifact of dmr's original C compiler that they do (the same could
+be said about shared member namespaces). Shared tag namespaces are a nuisance
+to enforce, and so the compiler doesn't bother.
+
+
+* Arbitrarily-typed bitfields.
+
+The compiler allows bit fields to have any integral type: the size of the type 
+limits the number of bits that are permitted and sets the alignment requirement 
+of the word that contains field. 
+
+Also, the 'signedness' of a bit field is honored.
+
+
+=======
+CHANGES
+=======
+
+These are intentional changes to the semantics of K&R C. Rationale given.
+
+
+* Floating-point types
+
+The only significant semantic differences occur in the treatment of floating-
+point types. K&R basically treats 'float' as a kind of short 'double': 'float'
+types are promoted to 'double' before just about any operation, in the same
+way that a 'short' is promoted to 'int'. This behavior is suboptimal on AMD64.
+
+NCC doesn't have a 'double' type; its double-precision type is instead called
+'long float', and its relationship to 'float' is the same as that between 
+'long' and 'int'. The only time a 'float' is coerced to a 'long float' is 
+during the usual conversions involving binary operators (when one of the
+operands is 'long float', the other is promoted to 'long float'). All 
+floating-point constants are assumed to be 'float' unless suffixed with 'L' 
+or 'l', in which case it is 'long float'.
+
+
+* Integer constants
+
+'long' integer constants must be explicitly suffixed with 'L' or 'l'. This 
+is for parity with the floating-point types and to avoid inadvertent long
+constants. (K&R and ANSI both have somewhat complex rules that are dependent
+on not only the value, but the base, of the constant.)
+
+
+=======
+DEFECTS
+=======
+
+These are minor issues that could be fixed pretty easily. I'm just lazy.
+
+
+* 'extern' objects must be declared at file scope.
+
+K&R and ANSI both allow 'extern' objects to appear in local scopes. This
+results in a lot of extra bookkeeping in the front end because:
+
+    1. all such objects must have compatible declarations, and
+    2. such declarations can't be exported to the global scope.
+
+This all means that "invisible" entries need to hang around the symbol table,
+and that just makes a mess, for, IMHO, no good reason.
+
+
+* Aggregate initializer braces can't be elided.
+
+  int a[2][2] = { { 1, 2 }, { 3, 4 } };
+
+and
+
+  int a[2][2] = { 1, 2, 3, 4 };
+
+are identical by both K&R and ANSI, but the compiler only accepts the first.
+
+
+Charles Youse <charles@gnuless.org>
+December 26, 2018
+

@@ -1,0 +1,24 @@
+This is NCC, the "new" C compiler. It is intended to be used as the system
+compiler for BSD/64 (my port of pre-Reno 4.3BSD to Intel/AMD 64-bit desktops).
+The compiler and its tools are fully functional and have been fairly well-
+tested to work correctly, though they are works-in-progress. In particular,
+the optimizer is quite minimal, and there is much work to be done there.
+
+ncc: compiler driver.
+ncpp: an ANSI C89 compliant C preprocessor.
+ncc1: the C compiler proper, produces assembly output
+nas: accepts 16/32/64-bit Intel syntax assembly and produces .o object.
+nld: the object linker - combines .o files into a.out executables.
+nobj: object/executable inspector. 
+
+These are all original works and are BSD-licensed. See LICENSE and comments.
+
+The dialect of C accepted by the compiler is basically pre-ANSI (K&R 1978) 
+with some common extensions (e.g., separate member space) and a few minor 
+"fixes". See the DIALECT file for specifics. Modifying the front end to accept
+and enforce ANSI C instead would be relatively straightforward, perhaps only 
+two days' work, but I haven't found any compelling reason to do so.
+
+Charles Youse <charles@gnuless.org>
+December 26, 2018
+
